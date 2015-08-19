@@ -9,6 +9,7 @@ import (
 
 	"github.com/Xe/middleware"
 	"github.com/codegangsta/negroni"
+	"github.com/drone/routes"
 	"github.com/googollee/go-socket.io"
 )
 
@@ -80,18 +81,28 @@ func main() {
 	})
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+	api := routes.New()
+
+	api.Get("/", func(w http.ResponseWriter, req *http.Request) {
 		log.Printf("%s %s\n", req.Header.Get("X-Request-ID"), req.URL.Path)
 		fmt.Fprintf(w, "Hi!")
 	})
-	mux.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
+	api.Get("/status", func(w http.ResponseWriter, r *http.Request) {
 		// print status here
 		// this is just for debugging for now, we need more in-depth stuff soon
 		enc := json.NewEncoder(w)
 		enc.Encode(sessions)
 	})
 
+	// TODO make some kind of simple RESTful (GET-only, though) API to
+	// introspect the existing sessions (e.g. /sessions/125-112-521 ->
+	// { vid, tid } for ease of redirecting to the correct netflix URI
+	// ideally, going to /sessions/{sid} will 302 to the right place on
+	// netflix (e.g. /watch/1243125?track_id=512312&flixy_id=125-112-521)
+	// or something
+
 	mux.Handle("/socket.io/", server)
+	mux.Handle("/", api)
 
 	n := negroni.Classic()
 	middleware.Inject(n)
