@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -83,6 +84,13 @@ func main() {
 		log.Printf("%s %s\n", req.Header.Get("X-Request-ID"), req.URL.Path)
 		fmt.Fprintf(w, "Hi!")
 	})
+	mux.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
+		// print status here
+		// this is just for debugging for now, we need more in-depth stuff soon
+		enc := json.NewEncoder(w)
+		enc.Encode(sessions)
+	})
+
 	mux.Handle("/socket.io/", server)
 
 	n := negroni.Classic()
