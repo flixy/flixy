@@ -100,6 +100,8 @@ func main() {
 			w.WriteHeader(404)
 			return
 		}
+		w.Header().Set("Location", session.GetNetflixURL())
+		w.WriteHeader(302)
 		routes.ServeJson(w, &session)
 	})
 
