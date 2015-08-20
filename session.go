@@ -8,10 +8,11 @@ import (
 )
 
 type Session struct {
-	VideoID int                `json:"video_id"`
-	TrackID int                `json:"track_id"`
-	Time    int                `json:"time"`
-	Members map[string]*Member `json:"members"`
+	SessionID string             `json:"session_id"`
+	VideoID   int                `json:"video_id"`
+	TrackID   int                `json:"track_id"`
+	Time      int                `json:"time"`
+	Members   map[string]*Member `json:"members"`
 }
 
 type Member struct {

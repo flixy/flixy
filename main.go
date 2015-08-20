@@ -26,7 +26,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sessions["test"] = Session{VideoID: 1, TrackID: 2, Time: 3, Members: make(map[string]*Member)}
+	sessions["test"] = Session{SessionID: "test", VideoID: 1, TrackID: 2, Time: 3, Members: make(map[string]*Member)}
 
 	// TODO figure out what the fuck is the deal with IDs --- can they be a
 	// key in map[session_id]User or something?
