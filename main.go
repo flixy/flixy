@@ -14,9 +14,13 @@ import (
 	"github.com/googollee/go-socket.io"
 )
 
-// sessions is a map of some identifier to each Flixy session.
-// TODO figure out what to make this identifier
+// sessions is a map of the session identifier to each Flixy session, generated
+// by `makeNewSessionId`
 var sessions map[string]*Session = make(map[string]*Session)
+
+// TODO remove this? it seems pretty useless. i don't really have any reason to
+// know every single socket that's connected individually, as all I care about
+// is sessions.
 var socketlist map[string]*socketio.Socket = make(map[string]*socketio.Socket)
 
 func makeNewSessionId() string {
