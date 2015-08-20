@@ -18,11 +18,6 @@ import (
 // by `makeNewSessionId`
 var sessions map[string]*Session = make(map[string]*Session)
 
-// TODO remove this? it seems pretty useless. i don't really have any reason to
-// know every single socket that's connected individually, as all I care about
-// is sessions.
-var socketlist map[string]*socketio.Socket = make(map[string]*socketio.Socket)
-
 func makeNewSessionId() string {
 	return fmt.Sprintf("%4d-%4d-%4d-%4d", rand.Intn(9999), rand.Intn(9999), rand.Intn(9999), rand.Intn(9999))
 }
@@ -40,7 +35,6 @@ func main() {
 	// TODO figure out what the fuck is the deal with IDs --- can they be a
 	// key in map[session_id]User or something?
 	server.On("connection", func(so socketio.Socket) {
-		socketlist[so.Id()] = &so
 		s := sessions["test"]
 		log.Printf("34 %v", s)
 
@@ -118,20 +112,13 @@ func main() {
 		})
 
 		log.Println("on connection")
-		log.Printf("id %s connected, currently connected:", so.Id())
-		for k, v := range socketlist {
-			log.Printf("%v -> %v", k, v)
-		}
+		log.Printf("id %s connected")
 	})
 
 	server.On("disconnection", func(so socketio.Socket) {
-		delete(socketlist, so.Id())
 		sockid := so.Id()
 
-		log.Printf("%v disconnected, connected now:", sockid)
-		for k, v := range socketlist {
-			log.Printf("%v -> %v", k, v)
-		}
+		log.Printf("%v disconnected", sockid)
 		log.Printf("deleting %v's memberships ....", sockid)
 		for _, session := range sessions {
 			session.RemoveMember(sockid)
