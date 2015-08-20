@@ -30,7 +30,9 @@ func (s *Session) Sync() {
 }
 
 func (s *Session) AddMember(so socketio.Socket) {
-	s.Members[so.Id()] = &Member{so}
+	m := &Member{so}
+	s.Members[so.Id()] = m
+	m.SyncTo(s.Time, s.VideoID, s.TrackID)
 }
 
 func (s *Session) RemoveMember(id string) {

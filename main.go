@@ -15,8 +15,8 @@ import (
 
 // sessions is a map of some identifier to each Flixy session.
 // TODO figure out what to make this identifier
-var sessions map[string]Session = make(map[string]Session)
-var socketlist map[string]socketio.Socket = make(map[string]socketio.Socket)
+var sessions map[string]*Session = make(map[string]*Session)
+var socketlist map[string]*socketio.Socket = make(map[string]*socketio.Socket)
 
 func main() {
 	fmt.Println("Hello, world!")
@@ -26,14 +26,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sessions["test"] = Session{SessionID: "test", VideoID: 1, TrackID: 2, Time: 3, Members: make(map[string]*Member)}
+	sessions["test"] = &Session{SessionID: "test", VideoID: 1, TrackID: 2, Time: 3, Members: make(map[string]*Member)}
 
 	// TODO figure out what the fuck is the deal with IDs --- can they be a
 	// key in map[session_id]User or something?
 	server.On("connection", func(so socketio.Socket) {
-		socketlist[so.Id()] = so
+		socketlist[so.Id()] = &so
 		s := sessions["test"]
-		s.Members[so.Id()] = &Member{so}
 		log.Printf("34 %v", s)
 
 		// se -> sync event
