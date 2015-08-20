@@ -93,6 +93,15 @@ func main() {
 		enc := json.NewEncoder(w)
 		enc.Encode(sessions)
 	})
+	api.Get("/sessions/:sid", func(w http.ResponseWriter, r *http.Request) {
+		params := r.URL.Query()
+		session, present := sessions[params.Get(":sid")]
+		if !present {
+			w.WriteHeader(404)
+			return
+		}
+		routes.ServeJson(w, &session)
+	})
 
 	// TODO make some kind of simple RESTful (GET-only, though) API to
 	// introspect the existing sessions (e.g. /sessions/125-112-521 ->
