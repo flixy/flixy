@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 
 	"github.com/Xe/middleware"
@@ -17,6 +18,10 @@ import (
 // TODO figure out what to make this identifier
 var sessions map[string]*Session = make(map[string]*Session)
 var socketlist map[string]*socketio.Socket = make(map[string]*socketio.Socket)
+
+func makeNewSessionId() string {
+	return fmt.Sprintf("%4d-%4d-%4d-%4d", rand.Intn(9999), rand.Intn(9999), rand.Intn(9999), rand.Intn(9999))
+}
 
 func main() {
 	fmt.Println("Hello, world!")
@@ -42,13 +47,66 @@ func main() {
 			log.Printf("%v", se)
 		})
 
-		so.On("flixy new", func(nse map[string]interface{}) {
-			// does this need to be a separate handler? surely we can merge this and `join`
+		/*
+			`flixy new` creates a new session, and accepts a map of the form:
+			{
+				video_id: 6135412,
+				track_id: 51251265,
+				time: 12423552346
+			}
+
+			upon registration it will emit an event `flixy new session` to the client, which will be a map:
+			{
+				session_id: "1254-5231-5432-4324",
+				video_id: 1523543,
+				track_id: 236523,
+				time: 523623662,
+				members: {}
+			}
+
+			TODO can this `members` be reasonably removed?
+
+		*/
+		so.On("flixy new", func(nse map[string]int) {
+			sid := makeNewSessionId()
+
+			vid, ok := nse["video_id"]
+			if !ok {
+				log.Fatalf("`flixy new` from %s (%s) had no video_id", so.Id(), so.Request().RemoteAddr)
+			}
+
+			tid, ok := nse["track_id"]
+			if !ok {
+				log.Fatalf("`flixy new` from %s (%s) had no track_id", so.Id(), so.Request().RemoteAddr)
+			}
+
+			time, ok := nse["time"]
+			if !ok {
+				log.Fatalf("`flixy new` from %s (%s) had no time", so.Id(), so.Request().RemoteAddr)
+			}
+
+			s := &Session{
+				SessionID: sid,
+				VideoID:   vid,
+				TrackID:   tid,
+				Time:      time,
+				Members:   make(map[string]*Member),
+			}
+
+			sessions[sid] = s
+
+			so.Emit("flixy new session", *s)
 		})
 
 		// si -> session id
 		so.On("flixy join", func(si string) {
-			// hmm! we could probably merge this and `flixy new`.
+			s, ok := sessions[si]
+			if !ok {
+				so.Emit("flixy invalid session id", si)
+				return
+			}
+
+			s.AddMember(so)
 		})
 
 		so.On("flixy test", func(thing interface{}) {
@@ -64,14 +122,15 @@ func main() {
 
 	server.On("disconnection", func(so socketio.Socket) {
 		delete(socketlist, so.Id())
+		sockid := so.Id()
 
-		log.Printf("%v disconnected, connected now:", so.Id())
+		log.Printf("%v disconnected, connected now:", sockid)
 		for k, v := range socketlist {
 			log.Printf("%v -> %v", k, v)
 		}
-		log.Printf("deleting %v's memberships ....")
+		log.Printf("deleting %v's memberships ....", sockid)
 		for _, session := range sessions {
-			session.RemoveMember(so.Id())
+			session.RemoveMember(sockid)
 		}
 	})
 
