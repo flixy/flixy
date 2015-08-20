@@ -50,6 +50,7 @@ func (s *Session) GetNetflixURL() string {
 	u.Path += fmt.Sprintf("/watch/%d", s.VideoID)
 	params := url.Values{}
 	params.Add("trackId", fmt.Sprintf("%d", s.TrackID))
+	params.Add("flixySessionId", s.SessionID)
 	u.RawQuery = params.Encode()
 
 	return u.String()
