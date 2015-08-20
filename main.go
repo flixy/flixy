@@ -83,17 +83,11 @@ func main() {
 				log.Fatalf("`flixy new` from %s (%s) had no time", so.Id(), so.Request().RemoteAddr)
 			}
 
-			s := &Session{
-				SessionID: sid,
-				VideoID:   vid,
-				TrackID:   tid,
-				Time:      time,
-				Members:   make(map[string]*Member),
-			}
-
+			s := NewSession(sid, vid, tid, time)
+			s.AddMember(so)
 			sessions[sid] = s
 
-			so.Emit("flixy new session", *s)
+			so.Emit("flixy new session", s.ToWireSession())
 		})
 
 		// si -> session id
@@ -112,7 +106,7 @@ func main() {
 		})
 
 		log.Println("on connection")
-		log.Printf("id %s connected")
+		log.Printf("id %s connected", so.Id())
 	})
 
 	server.On("disconnection", func(so socketio.Socket) {
