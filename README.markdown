@@ -1,6 +1,8 @@
 flixy.xyz
 ========
 
+[![GoDoc](https://godoc.org/github.com/skyhighwings/flixy?status.svg)](https://godoc.org/github.com/skyhighwings/flixy)
+
 watch netflix, collaboratively
 
 this is the server component. if you're looking for the extension source code,
