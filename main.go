@@ -15,13 +15,13 @@ import (
 )
 
 // sessions is a map of the session identifier to each Flixy session, generated
-// by `makeNewSessionId`
-var sessions map[string]*Session = make(map[string]*Session)
+// by `makeNewSessionID`
+var sessions = make(map[string]*Session)
 
-// makeNewSessionId produces a session identifier, which is currently of the
+// makeNewSessionID produces a session identifier, which is currently of the
 // form "%4d-%4d-%4d-%4d" but this is subject to change and is an
 // implementation detail.
-func makeNewSessionId() string {
+func makeNewSessionID() string {
 	return fmt.Sprintf("%4d-%4d-%4d-%4d", rand.Intn(9999), rand.Intn(9999), rand.Intn(9999), rand.Intn(9999))
 }
 
@@ -70,7 +70,7 @@ func main() {
 
 		*/
 		so.On("flixy new", func(nse map[string]int) {
-			sid := makeNewSessionId()
+			sid := makeNewSessionID()
 
 			vid, ok := nse["video_id"]
 			if !ok {
