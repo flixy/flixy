@@ -18,10 +18,14 @@ import (
 // by `makeNewSessionId`
 var sessions map[string]*Session = make(map[string]*Session)
 
+// makeNewSessionId produces a session identifier, which is currently of the
+// form "%4d-%4d-%4d-%4d" but this is subject to change and is an
+// implementation detail.
 func makeNewSessionId() string {
 	return fmt.Sprintf("%4d-%4d-%4d-%4d", rand.Intn(9999), rand.Intn(9999), rand.Intn(9999), rand.Intn(9999))
 }
 
+// main is the entry point to the flixy server.
 func main() {
 	fmt.Println("Hello, world!")
 
