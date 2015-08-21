@@ -115,11 +115,11 @@ func main() {
 			s.Play()
 		})
 
-		// si -> session id
-		so.On("flixy join", func(si string) {
-			s, ok := sessions[si]
+		// sid -> session id
+		so.On("flixy join", func(sid string) {
+			s, ok := sessions[sid]
 			if !ok {
-				so.Emit("flixy invalid session id", si)
+				so.Emit("flixy invalid session id", sid)
 				return
 			}
 
