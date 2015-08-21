@@ -8,6 +8,8 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/skyhighwings/flixy/models"
+
 	"github.com/Xe/middleware"
 	"github.com/codegangsta/negroni"
 	"github.com/drone/routes"
@@ -16,7 +18,7 @@ import (
 
 // sessions is a map of the session identifier to each Flixy session, generated
 // by `makeNewSessionID`
-var sessions = make(map[string]*Session)
+var sessions = make(map[string]*models.Session)
 
 // makeNewSessionID produces a session identifier, which is currently of the
 // form "%4d-%4d-%4d-%4d" but this is subject to change and is an
@@ -34,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sessions["test"] = &Session{SessionID: "test", VideoID: 1, TrackID: 2, Time: 3, Members: make(map[string]*Member)}
+	sessions["test"] = &models.Session{SessionID: "test", VideoID: 1, TrackID: 2, Time: 3, Members: make(map[string]*models.Member)}
 
 	// TODO figure out what the fuck is the deal with IDs --- can they be a
 	// key in map[session_id]User or something?
@@ -87,7 +89,7 @@ func main() {
 				log.Fatalf("`flixy new` from %s (%s) had no time", so.Id(), so.Request().RemoteAddr)
 			}
 
-			s := NewSession(sid, vid, tid, time)
+			s := models.NewSession(sid, vid, tid, time)
 			s.AddMember(so)
 			sessions[sid] = s
 
