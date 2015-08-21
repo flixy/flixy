@@ -4,6 +4,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
 	"log"
 	"math/rand"
 	"net/http"
@@ -94,6 +95,24 @@ func main() {
 			sessions[sid] = s
 
 			so.Emit("flixy new session", s.ToWireSession())
+		})
+
+		so.On("flixy pause", func(sid string) {
+			s, ok := sessions[sid]
+			if !ok {
+				log.Fatalf("`flixy pause` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+			}
+
+			s.Pause()
+		})
+
+		so.On("flixy play", func(sid string) {
+			s, ok := sessions[sid]
+			if !ok {
+				log.Fatalf("`flixy play` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+			}
+
+			s.Play()
 		})
 
 		// si -> session id

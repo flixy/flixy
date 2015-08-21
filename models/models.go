@@ -3,6 +3,7 @@
 package models
 
 import (
+	"github.com/e-dard/tock"
 	"time"
 
 	"github.com/googollee/go-socket.io"
@@ -17,13 +18,15 @@ import (
 //   - a single Video ID (a session can only be watching one thing at a time)
 //   - a single Track ID (it's unknown what this is for, it's potentially a tracking ID so we should possibly not include it.
 //   - A single Time, which is a JS time in milliseconds (recorded as an `int`, but is that enough for a JS timestamp (which is milliseconds)?) Possible TODO is to make this a Time in the internal rep.
+//   - a stop channel, which listens for messages and stops the ticker. For internal use only.
 type Session struct {
 	SessionID string             `json:"session_id"`
 	VideoID   int                `json:"video_id"`
 	TrackID   int                `json:"track_id"`
 	Time      int                `json:"time"`
 	Members   map[string]*Member `json:"members"`
-	ticker    *time.Ticker
+	Paused    bool               `json:"paused"`
+	ticker    *tock.Ticker
 }
 
 // WireSession is the *external* representation of a flixy session. It has no
@@ -36,6 +39,7 @@ type WireSession struct {
 	VideoID   int                   `json:"video_id"`
 	TrackID   int                   `json:"track_id"`
 	Time      int                   `json:"time"`
+	Paused    bool                  `json:"paused"`
 	Members   map[string]WireMember `json:"members"`
 }
 
@@ -50,6 +54,15 @@ type Member struct {
 // It has nothing in it currently, but will have a `nickname` or something like
 // it in the neat future.
 type WireMember struct {
+}
+
+// WireStatus is the *external* representation of the current status of a flixy
+// session, suitable for being sent over a go-socket.io connection.
+type WireStatus struct {
+	VideoID int  `json:"video_id"`
+	TrackID int  `json:"track_id"`
+	Time    int  `json:"time"`
+	Paused  bool `json:"paused"`
 }
 
 // SyncTo sends a message over the wire to the given `Member` to inform
@@ -70,7 +83,13 @@ func (m *Member) ToWireMember() WireMember {
 // starting the ticker for it in the process.
 func NewSession(id string, vid int, tid int, ts int) *Session {
 	s := Session{
-		id, vid, tid, ts, make(map[string]*Member), time.NewTicker(time.Millisecond),
+		id,
+		vid,
+		tid,
+		ts,
+		make(map[string]*Member),
+		false,
+		tock.NewTicker(time.Millisecond),
 	}
 
 	go func() {
@@ -83,11 +102,44 @@ func NewSession(id string, vid int, tid int, ts int) *Session {
 	return &s
 }
 
+// GetWireStatus returns a wire representation of where the session is without
+// including the session ID or members.
+func (s *Session) GetWireStatus() WireStatus {
+	ws := WireStatus{
+		s.VideoID,
+		s.TrackID,
+		s.Time,
+		s.Paused,
+	}
+
+	return ws
+}
+
+// SendToAll emits a given eventName on all member sockets, with the given
+// message. Please don't pass anything that has an unexported struct key
+// anywhere in it at all to this. go-socket.io will choke on it.
+func (s *Session) SendToAll(eventName string, message interface{}) {
+	for _, m := range s.Members {
+		m.Socket.Emit(eventName, message)
+	}
+}
+
+// Play starts the server-side ticker of a given Session and informs all
+// Members that it is time to resume playing again.
+func (s *Session) Play() {
+	s.ticker.Resume()
+	s.Paused = false
+
+	s.SendToAll("flixy sync", s.GetWireStatus())
+}
+
 // Pause pauses the server-side ticker of a given `Session` and inform all
 // clients that they should be paused, too.
 func (s *Session) Pause() {
-	// for each member, pause
-	// also pause the ticker, somehow
+	s.ticker.Stop()
+	s.Paused = true
+
+	s.SendToAll("flixy sync", s.GetWireStatus())
 }
 
 // ToWireSession returns a `WireSession` from a given `Session`, which is a
@@ -103,6 +155,7 @@ func (s *Session) ToWireSession() WireSession {
 		s.VideoID,
 		s.TrackID,
 		s.Time,
+		s.Paused,
 		wms,
 	}
 }
