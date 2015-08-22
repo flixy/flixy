@@ -77,7 +77,20 @@ func main() {
 	server.On("connection", func(so socketio.Socket) {
 		sockid := so.Id()
 
-		so.On("flixy get sync", func(sid string) {
+		so.On("flixy get sync", func(jsonmsg string) {
+			var data models.GetSyncMessage
+
+			if err := json.Unmarshal([]byte(jsonmsg), &data); err != nil {
+				log.WithFields(log.Fields{
+					"verb":          "flixy get sync",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+				}).Error(err)
+				return
+			}
+
+			sid := data.SessionID
+
 			s, ok := sessions[sid]
 			if !ok {
 				log.WithFields(log.Fields{
@@ -85,42 +98,47 @@ func main() {
 					"member_sockid": sockid,
 					"member_remote": so.Request().RemoteAddr,
 					"invalid_sid":   sid,
-				}).Warn("no video id included")
+				}).Warn("invalid session id")
 				so.Emit("flixy invalid session id", sid)
 				return
 			}
 
+			log.WithFields(log.Fields{
+				"verb":          "flixy get sync",
+				"member_sockid": sockid,
+				"member_remote": so.Request().RemoteAddr,
+			}).Debug("getting sync state")
 			so.Emit("flixy sync", s.GetWireStatus())
 		})
 
-		so.On("flixy new", func(nse map[string]int) {
+		so.On("flixy new", func(jsonmsg string) {
+			var data models.NewMessage
+
+			if err := json.Unmarshal([]byte(jsonmsg), &data); err != nil {
+				log.WithFields(log.Fields{
+					"verb":          "flixy new",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+				}).Error(err)
+			}
+
 			log.Infof("client %s creating a new session", sockid)
 
 			sid := makeNewSessionID()
 
-			vid, ok := nse["video_id"]
-			if !ok {
+			vid := data.VideoID
+			if vid == 0 {
 				log.WithFields(log.Fields{
 					"verb":          "flixy new",
 					"member_sockid": sockid,
 					"member_remote": so.Request().RemoteAddr,
-				}).Warn("no video id included")
+				}).Warn("invalid video id?")
 
-				so.Emit("flixy invalid new init map", nse)
+				so.Emit("flixy invalid new data", jsonmsg)
 				return
 			}
 
-			time, ok := nse["time"]
-			if !ok {
-				log.WithFields(log.Fields{
-					"verb":          "flixy new",
-					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
-				}).Warn("no time included")
-
-				so.Emit("flixy invalid new init map", nse)
-				return
-			}
+			time := data.Time
 
 			s := models.NewSession(sid, vid, time)
 			s.AddMember(so)
@@ -130,7 +148,20 @@ func main() {
 			log.Infof("new session %s created", sid)
 		})
 
-		so.On("flixy pause", func(sid string) {
+		so.On("flixy pause", func(jsonmsg string) {
+			var data models.PauseMessage
+
+			if err := json.Unmarshal([]byte(jsonmsg), &data); err != nil {
+				log.WithFields(log.Fields{
+					"verb":          "flixy pause",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+				}).Error(err)
+				return
+			}
+
+			sid := data.SessionID
+
 			log.Infof("%s pausing session %s", sockid, sid)
 			s, ok := sessions[sid]
 			if !ok {
@@ -146,9 +177,27 @@ func main() {
 			}
 
 			s.Pause()
+			log.WithFields(log.Fields{
+				"verb":          "flixy pause",
+				"member_sockid": sockid,
+				"member_remote": so.Request().RemoteAddr,
+			}).Debug("pausing")
 		})
 
-		so.On("flixy play", func(sid string) {
+		so.On("flixy play", func(jsonmsg string) {
+			var data models.PlayMessage
+
+			if err := json.Unmarshal([]byte(jsonmsg), &data); err != nil {
+				log.WithFields(log.Fields{
+					"verb":          "flixy play",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+				}).Error(err)
+				return
+			}
+
+			sid := data.SessionID
+
 			log.Infof("%s playing session %s", sockid, sid)
 			s, ok := sessions[sid]
 			if !ok {
@@ -164,12 +213,28 @@ func main() {
 			}
 
 			s.Play()
-			log.Debugf("%s session play being sent to %s", sockid, sid)
+			log.WithFields(log.Fields{
+				"verb":          "flixy play",
+				"member_sockid": sockid,
+				"member_remote": so.Request().RemoteAddr,
+			}).Debug("playing")
 		})
 
 		// sid -> session id
-		so.On("flixy join", func(sid string) {
-			log.Infof("%s joining session %s", sockid, sid)
+		so.On("flixy join", func(jsonmsg string) {
+			var data models.JoinMessage
+
+			if err := json.Unmarshal([]byte(jsonmsg), &data); err != nil {
+				log.WithFields(log.Fields{
+					"verb":          "flixy join",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+				}).Error(err)
+				return
+			}
+
+			sid := data.SessionID
+
 			s, ok := sessions[sid]
 			if !ok {
 				log.WithFields(log.Fields{
@@ -184,9 +249,19 @@ func main() {
 			}
 
 			s.AddMember(so)
+
+			log.WithFields(log.Fields{
+				"verb":          "flixy play",
+				"member_sockid": sockid,
+				"member_remote": so.Request().RemoteAddr,
+				"session_id":    sid,
+			}).Debug("joining a session")
 		})
 
-		log.Infof("id %s connected", sockid)
+		log.WithFields(log.Fields{
+			"member_sockid": sockid,
+			"member_remote": so.Request().RemoteAddr,
+		}).Info("connected")
 	})
 
 	server.On("disconnection", func(so socketio.Socket) {
