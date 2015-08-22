@@ -48,6 +48,7 @@ type WireSession struct {
 // in the near future.
 type Member struct {
 	Socket socketio.Socket
+	*Session
 }
 
 // WireMember is the *external* representation of a member of a flixy session.
@@ -171,7 +172,7 @@ func (s *Session) Sync() {
 // AddMember adds a member to the given session and syncs them to where the
 // server is.
 func (s *Session) AddMember(so socketio.Socket) {
-	m := &Member{so}
+	m := &Member{so, s}
 	s.Members[so.Id()] = m
 	m.SyncTo(s.Time, s.VideoID, s.TrackID)
 }
