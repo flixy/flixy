@@ -57,7 +57,7 @@ func main() {
 		so.On("flixy get sync", func(sid string) {
 			s, ok := sessions[sid]
 			if !ok {
-				log.Fatalf("`flixy get sync` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				log.Printf("`flixy get sync` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
 				so.Emit("flixy invalid session id", sid)
 			}
 
@@ -71,13 +71,13 @@ func main() {
 
 			vid, ok := nse["video_id"]
 			if !ok {
-				log.Fatalf("`flixy new` from %s (%s) had no video_id", so.Id(), so.Request().RemoteAddr)
+				log.Printf("`flixy new` from %s (%s) had no video_id", so.Id(), so.Request().RemoteAddr)
 				so.Emit("flixy invalid new init map", nse)
 			}
 
 			time, ok := nse["time"]
 			if !ok {
-				log.Fatalf("`flixy new` from %s (%s) had no time", so.Id(), so.Request().RemoteAddr)
+				log.Printf("`flixy new` from %s (%s) had no time", so.Id(), so.Request().RemoteAddr)
 				so.Emit("flixy invalid new init map", nse)
 			}
 
@@ -93,7 +93,7 @@ func main() {
 			log.Printf("%s pausing session %s", so.Id(), sid)
 			s, ok := sessions[sid]
 			if !ok {
-				log.Fatalf("`flixy pause` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				log.Printf("`flixy pause` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
 				so.Emit("flixy invalid session id", sid)
 			}
 
@@ -104,7 +104,7 @@ func main() {
 			log.Printf("%s playing session %s", so.Id(), sid)
 			s, ok := sessions[sid]
 			if !ok {
-				log.Fatalf("`flixy play` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				log.Printf("`flixy play` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
 				so.Emit("flixy invalid session id", sid)
 			}
 
@@ -116,7 +116,7 @@ func main() {
 			log.Printf("%s joining session %s", so.Id(), sid)
 			s, ok := sessions[sid]
 			if !ok {
-				log.Fatalf("`flixy join` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				log.Printf("`flixy join` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
 				so.Emit("flixy invalid session id", sid)
 				return
 			}
