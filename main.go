@@ -86,6 +86,7 @@ func main() {
 					"invalid_sid":   sid,
 				}).Warn("no video id included")
 				so.Emit("flixy invalid session id", sid)
+				return
 			}
 
 			so.Emit("flixy sync", s.GetWireStatus())
@@ -103,7 +104,9 @@ func main() {
 					"member_sockid": sockid,
 					"member_remote": so.Request().RemoteAddr,
 				}).Warn("no video id included")
+
 				so.Emit("flixy invalid new init map", nse)
+				return
 			}
 
 			time, ok := nse["time"]
@@ -113,7 +116,9 @@ func main() {
 					"member_sockid": sockid,
 					"member_remote": so.Request().RemoteAddr,
 				}).Warn("no time included")
+
 				so.Emit("flixy invalid new init map", nse)
+				return
 			}
 
 			s := models.NewSession(sid, vid, time)
@@ -134,7 +139,9 @@ func main() {
 					"member_remote": so.Request().RemoteAddr,
 					"invalid_sid":   sid,
 				}).Warn("invalid session id")
+
 				so.Emit("flixy invalid session id", sid)
+				return
 			}
 
 			s.Pause()
@@ -150,7 +157,9 @@ func main() {
 					"member_remote": so.Request().RemoteAddr,
 					"invalid_sid":   sid,
 				}).Warn("invalid session id")
+
 				so.Emit("flixy invalid session id", sid)
+				return
 			}
 
 			s.Play()
@@ -168,6 +177,7 @@ func main() {
 					"member_remote": so.Request().RemoteAddr,
 					"invalid_sid":   sid,
 				}).Warn("invalid session id")
+
 				so.Emit("flixy invalid session id", sid)
 				return
 			}
