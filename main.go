@@ -4,6 +4,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
 
 	"math/rand"
 	"net/http"
@@ -55,12 +57,34 @@ func makeNewSessionID() string {
 	return fmt.Sprintf("%4d-%4d-%4d-%4d", rand.Intn(9999), rand.Intn(9999), rand.Intn(9999), rand.Intn(9999))
 }
 
+// dealWithUserSettings is the internal function to handle the various
+// conversions and such that go with dealing with the user-defined settings of
+// flixy.`
+func dealWithUserSettings() {
+	defaultPort, err := strconv.Atoi(os.Getenv("FLIXY_PORT"))
+	if err != nil {
+		defaultPort = 3000
+	}
+	defaultHost := os.Getenv("FLIXY_HOST")
+	if defaultHost == "" {
+		defaultHost = "0.0.0.0"
+	}
+
+	defaultLogLevel := os.Getenv("FLIXY_LOGLEVEL")
+	if defaultLogLevel == "" {
+		defaultLogLevel = "info"
+	}
+
+	flag.IntVarP(&opts.Port, "port", "p", defaultPort, "the port to listen on")
+	flag.StringVarP(&opts.Host, "host", "H", defaultHost, "the host to listen on")
+	flag.StringVarP(&opts.LogLevel, "log-level", "l", defaultLogLevel, "the log level to use (possible: panic,fatal,error,warn,info,debug)")
+	flag.Parse()
+
+}
+
 // main is the entry point to the flixy server.
 func main() {
-	flag.IntVarP(&opts.Port, "port", "p", 3000, "the port to listen on")
-	flag.StringVarP(&opts.Host, "host", "H", "0.0.0.0", "the host to listen on")
-	flag.StringVarP(&opts.LogLevel, "log-level", "l", "info", "the log level to use (possible: panic,fatal,error,warn,info,debug)")
-	flag.Parse()
+	dealWithUserSettings()
 
 	ll, ok := logLevels[opts.LogLevel]
 	if !ok {
