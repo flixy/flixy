@@ -52,6 +52,8 @@ func main() {
 		})
 
 		so.On("flixy new", func(nse map[string]int) {
+			log.Printf("client %s creating a new session", so.Id())
+
 			sid := makeNewSessionID()
 
 			vid, ok := nse["video_id"]
@@ -77,9 +79,11 @@ func main() {
 			sessions[sid] = s
 
 			so.Emit("flixy new session", s.ToWireSession())
+			log.Printf("new session %s created", sid)
 		})
 
 		so.On("flixy pause", func(sid string) {
+			log.Printf("%s pausing session %s", so.Id(), sid)
 			s, ok := sessions[sid]
 			if !ok {
 				log.Fatalf("`flixy pause` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
@@ -90,6 +94,7 @@ func main() {
 		})
 
 		so.On("flixy play", func(sid string) {
+			log.Printf("%s playing session %s", so.Id(), sid)
 			s, ok := sessions[sid]
 			if !ok {
 				log.Fatalf("`flixy play` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
@@ -101,8 +106,10 @@ func main() {
 
 		// sid -> session id
 		so.On("flixy join", func(sid string) {
+			log.Printf("%s joining session %s", so.Id(), sid)
 			s, ok := sessions[sid]
 			if !ok {
+				log.Fatalf("`flixy join` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
 				so.Emit("flixy invalid session id", sid)
 				return
 			}
