@@ -76,6 +76,7 @@ func main() {
 	// key in map[session_id]User or something?
 	server.On("connection", func(so socketio.Socket) {
 		sockid := so.Id()
+		sockip := so.Request().RemoteAddr
 
 		so.On("flixy get sync", func(jsonmsg string) {
 			var data models.GetSyncMessage
@@ -84,7 +85,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy get sync",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 				}).Error(err)
 				return
 			}
@@ -96,7 +97,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy get sync",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 					"invalid_sid":   sid,
 				}).Warn("invalid session id")
 				so.Emit("flixy invalid session id", sid)
@@ -106,7 +107,7 @@ func main() {
 			log.WithFields(log.Fields{
 				"verb":          "flixy get sync",
 				"member_sockid": sockid,
-				"member_remote": so.Request().RemoteAddr,
+				"member_remote": sockip,
 			}).Debug("getting sync state")
 			so.Emit("flixy sync", s.GetWireStatus())
 		})
@@ -118,7 +119,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy new",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 				}).Error(err)
 			}
 
@@ -131,7 +132,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy new",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 				}).Warn("invalid video id?")
 
 				so.Emit("flixy invalid new data", jsonmsg)
@@ -155,7 +156,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy pause",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 				}).Error(err)
 				return
 			}
@@ -168,7 +169,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy pause",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 					"invalid_sid":   sid,
 				}).Warn("invalid session id")
 
@@ -180,7 +181,7 @@ func main() {
 			log.WithFields(log.Fields{
 				"verb":          "flixy pause",
 				"member_sockid": sockid,
-				"member_remote": so.Request().RemoteAddr,
+				"member_remote": sockip,
 			}).Debug("pausing")
 		})
 
@@ -191,7 +192,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy play",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 				}).Error(err)
 				return
 			}
@@ -204,7 +205,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy play",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 					"invalid_sid":   sid,
 				}).Warn("invalid session id")
 
@@ -216,7 +217,7 @@ func main() {
 			log.WithFields(log.Fields{
 				"verb":          "flixy play",
 				"member_sockid": sockid,
-				"member_remote": so.Request().RemoteAddr,
+				"member_remote": sockip,
 			}).Debug("playing")
 		})
 
@@ -228,7 +229,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy join",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 				}).Error(err)
 				return
 			}
@@ -240,7 +241,7 @@ func main() {
 				log.WithFields(log.Fields{
 					"verb":          "flixy join",
 					"member_sockid": sockid,
-					"member_remote": so.Request().RemoteAddr,
+					"member_remote": sockip,
 					"invalid_sid":   sid,
 				}).Warn("invalid session id")
 
@@ -253,14 +254,14 @@ func main() {
 			log.WithFields(log.Fields{
 				"verb":          "flixy play",
 				"member_sockid": sockid,
-				"member_remote": so.Request().RemoteAddr,
+				"member_remote": sockip,
 				"session_id":    sid,
 			}).Debug("joining a session")
 		})
 
 		log.WithFields(log.Fields{
 			"member_sockid": sockid,
-			"member_remote": so.Request().RemoteAddr,
+			"member_remote": sockip,
 		}).Info("connected")
 	})
 
