@@ -136,12 +136,16 @@ func main() {
 		log.Printf("%s %s\n", req.Header.Get("X-Request-ID"), req.URL.Path)
 		fmt.Fprintf(w, "Hi!")
 	})
+
+	// TODO remove this
 	api.Get("/status", func(w http.ResponseWriter, r *http.Request) {
 		// print status here
 		// this is just for debugging for now, we need more in-depth stuff soon
 		enc := json.NewEncoder(w)
 		enc.Encode(sessions)
 	})
+
+	// `/sessions/:sid` will 302 the user to the proper Netflix URL if it's a valid SID, setting the session ID in the URL as it does so. It will *also* return the session as a JSON object.
 	api.Get("/sessions/:sid", func(w http.ResponseWriter, r *http.Request) {
 		params := r.URL.Query()
 		session, present := sessions[params.Get(":sid")]
@@ -151,15 +155,8 @@ func main() {
 		}
 		w.Header().Set("Location", session.GetNetflixURL())
 		w.WriteHeader(302)
-		routes.ServeJson(w, &session)
+		routes.ServeJson(w, session.ToWireSession())
 	})
-
-	// TODO make some kind of simple RESTful (GET-only, though) API to
-	// introspect the existing sessions (e.g. /sessions/125-112-521 ->
-	// { vid, tid } for ease of redirecting to the correct netflix URI
-	// ideally, going to /sessions/{sid} will 302 to the right place on
-	// netflix (e.g. /watch/1243125?track_id=512312&flixy_id=125-112-521)
-	// or something
 
 	mux.Handle("/socket.io/", server)
 	mux.Handle("/", api)
