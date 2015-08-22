@@ -66,10 +66,9 @@ type WireStatus struct {
 	Paused  bool `json:"paused"`
 }
 
-// SyncTo sends a message over the wire to the given `Member` to inform
-// their client to sync the video state to the arguments.
-func (m *Member) SyncTo(time int, vid int, tid int) {
-	m.Socket.Emit("flixy sync", map[string]int{"time": time, "video_id": vid, "track_id": tid})
+// Sync tells the given member the state of the session.
+func (m *Member) Sync() {
+	m.Socket.Emit("flixy sync", m.Session.GetWireStatus())
 }
 
 // ToWireMember converts a given `Member` to a `WireMember`, which
@@ -131,7 +130,8 @@ func (s *Session) Play() {
 	s.ticker.Resume()
 	s.Paused = false
 
-	s.SendToAll("flixy sync", s.GetWireStatus())
+	// TODO should this have its own dedicated `flixy play` event?
+	s.Sync()
 }
 
 // Pause pauses the server-side ticker of a given `Session` and inform all
@@ -140,7 +140,8 @@ func (s *Session) Pause() {
 	s.ticker.Stop()
 	s.Paused = true
 
-	s.SendToAll("flixy sync", s.GetWireStatus())
+	// TODO should this have its own dedicated `flixy pause` event?
+	s.Sync()
 }
 
 // ToWireSession returns a `WireSession` from a given `Session`, which is a
@@ -164,8 +165,9 @@ func (s *Session) ToWireSession() WireSession {
 // Sync syncs all members of a given session to the session's idea of where
 // everyone should be.
 func (s *Session) Sync() {
+	// TODO should this be using `s.SendToAll` instead?
 	for _, member := range s.Members {
-		member.SyncTo(s.Time, s.VideoID, s.TrackID)
+		member.Sync()
 	}
 }
 
@@ -174,7 +176,11 @@ func (s *Session) Sync() {
 func (s *Session) AddMember(so socketio.Socket) {
 	m := &Member{so, s}
 	s.Members[so.Id()] = m
-	m.SyncTo(s.Time, s.VideoID, s.TrackID)
+	m.Sync()
+
+	// Touching the member's socket directly feels wrong. This should
+	// probably become non-exported.
+	m.Socket.Emit("flixy join session", s.ToWireSession())
 }
 
 // RemoveMember removes a member from the given session.
