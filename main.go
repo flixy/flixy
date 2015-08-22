@@ -44,6 +44,10 @@ var (
 // by `makeNewSessionID`
 var sessions = make(map[string]*models.Session)
 
+// members is a map of socket identifier to member, for ease of removing users
+// from sessions after they disconnect and other such happenstances
+var members = make(map[string]*models.Member)
+
 // makeNewSessionID produces a session identifier, which is currently of the
 // form "%4d-%4d-%4d-%4d" but this is subject to change and is an
 // implementation detail.
@@ -146,7 +150,8 @@ func main() {
 			}
 
 			s := models.NewSession(sid, vid, time)
-			s.AddMember(so, nick)
+			m := s.AddMember(so, nick)
+			members[sockid] = m
 			sessions[sid] = s
 
 			so.Emit("flixy new session", s.GetWireSession())
@@ -275,12 +280,22 @@ func main() {
 
 	server.On("disconnection", func(so socketio.Socket) {
 		sockid := so.Id()
+		sockip := so.Request().RemoteAddr
+
+		m, ok := members[sockid]
+		if !ok {
+			log.WithFields(log.Fields{
+				"verb":          "disconnection",
+				"member_sockid": sockid,
+				"member_remote": sockip,
+			}).Warn("member never in a session disconnected")
+		}
 
 		log.Infof("%v disconnected", sockid)
-		log.Debugf("deleting %v's memberships ....", sockid)
-		for _, session := range sessions {
-			session.RemoveMember(sockid)
-		}
+		delete(members, sockid)
+
+		s := m.Session
+		s.RemoveMember(sockid)
 	})
 
 	server.On("error", func(so socketio.Socket, err error) {
@@ -298,7 +313,9 @@ func main() {
 		enc.Encode(sessions)
 	})
 
-	// `/sessions/:sid` will 302 the user to the proper Netflix URL if it's a valid SID, setting the session ID in the URL as it does so. It will *also* return the session as a JSON object.
+	// `/sessions/:sid` will 302 the user to the proper Netflix URL if it's
+	// a valid SID, setting the session ID in the URL as it does so. It
+	// will *also* return the session as a JSON object.
 	api.Get("/sessions/:sid", func(w http.ResponseWriter, r *http.Request) {
 		params := r.URL.Query()
 		session, present := sessions[params.Get(":sid")]
