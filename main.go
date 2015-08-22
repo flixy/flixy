@@ -30,7 +30,8 @@ func makeNewSessionID() string {
 
 // main is the entry point to the flixy server.
 func main() {
-	fmt.Println("Hello, world!")
+
+	log.Printf("Starting flixy!")
 
 	server, err := socketio.NewServer(nil)
 	if err != nil {
