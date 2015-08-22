@@ -20,7 +20,7 @@ type WireMember struct {
 
 // Sync tells the given member the state of the session.
 func (m *Member) Sync() {
-	m.Socket.Emit("flixy sync", m.Session.GetWireStatus())
+	m.Socket.Emit("flixy sync", m.Session.GetWireSession())
 }
 
 // ToWireMember converts a given `Member` to a `WireMember`, which

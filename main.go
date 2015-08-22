@@ -109,7 +109,7 @@ func main() {
 				"member_sockid": sockid,
 				"member_remote": sockip,
 			}).Debug("getting sync state")
-			so.Emit("flixy sync", s.GetWireStatus())
+			so.Emit("flixy sync", s.GetWireSession())
 		})
 
 		so.On("flixy new", func(jsonmsg string) {
@@ -149,7 +149,7 @@ func main() {
 			s.AddMember(so, nick)
 			sessions[sid] = s
 
-			so.Emit("flixy new session", s.ToWireSession())
+			so.Emit("flixy new session", s.GetWireSession())
 			log.Infof("new session %s created", sid)
 		})
 
@@ -309,7 +309,7 @@ func main() {
 
 		w.Header().Set("Location", session.GetNetflixURL())
 		w.WriteHeader(302)
-		routes.ServeJson(w, session.ToWireSession())
+		routes.ServeJson(w, session.GetWireSession())
 	})
 
 	mux.Handle("/socket.io/", server)

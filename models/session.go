@@ -37,14 +37,6 @@ type WireSession struct {
 	Members   map[string]WireMember `json:"members"`
 }
 
-// WireStatus is the *external* representation of the current status of a flixy
-// session, suitable for being sent over a go-socket.io connection.
-type WireStatus struct {
-	VideoID int  `json:"video_id"`
-	Time    int  `json:"time"`
-	Paused  bool `json:"paused"`
-}
-
 // NewSession creates and return a new `Session` with the given arguments,
 // starting the ticker for it in the process.
 func NewSession(id string, vid int, ts int) *Session {
@@ -65,18 +57,6 @@ func NewSession(id string, vid int, ts int) *Session {
 	}()
 
 	return &s
-}
-
-// GetWireStatus returns a wire representation of where the session is without
-// including the session ID or members.
-func (s *Session) GetWireStatus() WireStatus {
-	ws := WireStatus{
-		s.VideoID,
-		s.Time,
-		s.Paused,
-	}
-
-	return ws
 }
 
 // SendToAll emits a given eventName on all member sockets, with the given
@@ -111,7 +91,7 @@ func (s *Session) Pause() {
 // ToWireSession returns a `WireSession` from a given `Session`, which is a
 // sanitized version of a session suitable for sending over a socket.io
 // connection.
-func (s *Session) ToWireSession() WireSession {
+func (s *Session) GetWireSession() WireSession {
 	wms := make(map[string]WireMember)
 	for k, member := range s.Members {
 		wms[k] = member.ToWireMember()
@@ -143,7 +123,7 @@ func (s *Session) AddMember(so socketio.Socket, nick string) {
 
 	// Touching the member's socket directly feels wrong. This should
 	// probably become non-exported.
-	m.Socket.Emit("flixy join session", s.ToWireSession())
+	m.Socket.Emit("flixy join session", s.GetWireSession())
 }
 
 // RemoveMember removes a member from the given session.
