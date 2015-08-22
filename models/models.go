@@ -16,13 +16,11 @@ import (
 // collection of *Members*, along with:
 //   - A single Session ID, which is the name by which this is referred (this is probably always going to be the key in the `sessions` map in `main.go`
 //   - a single Video ID (a session can only be watching one thing at a time)
-//   - a single Track ID (it's unknown what this is for, it's potentially a tracking ID so we should possibly not include it.
 //   - A single Time, which is a JS time in milliseconds (recorded as an `int`, but is that enough for a JS timestamp (which is milliseconds)?) Possible TODO is to make this a Time in the internal rep.
 //   - a stop channel, which listens for messages and stops the ticker. For internal use only.
 type Session struct {
 	SessionID string             `json:"session_id"`
 	VideoID   int                `json:"video_id"`
-	TrackID   int                `json:"track_id"`
 	Time      int                `json:"time"`
 	Members   map[string]*Member `json:"members"`
 	Paused    bool               `json:"paused"`
@@ -32,12 +30,11 @@ type Session struct {
 // WireSession is the *external* representation of a flixy session. It has no
 // references to anything that has an unexported field, as that currently
 // (2015-08-20) causes reflection errors.
-// It is comprised of the session ID, the video ID, the track ID, the time, and
+// It is comprised of the session ID, the video ID, the time, and
 // the members.
 type WireSession struct {
 	SessionID string                `json:"session_id"`
 	VideoID   int                   `json:"video_id"`
-	TrackID   int                   `json:"track_id"`
 	Time      int                   `json:"time"`
 	Paused    bool                  `json:"paused"`
 	Members   map[string]WireMember `json:"members"`
@@ -61,7 +58,6 @@ type WireMember struct {
 // session, suitable for being sent over a go-socket.io connection.
 type WireStatus struct {
 	VideoID int  `json:"video_id"`
-	TrackID int  `json:"track_id"`
 	Time    int  `json:"time"`
 	Paused  bool `json:"paused"`
 }
@@ -81,11 +77,10 @@ func (m *Member) ToWireMember() WireMember {
 
 // NewSession creates and return a new `Session` with the given arguments,
 // starting the ticker for it in the process.
-func NewSession(id string, vid int, tid int, ts int) *Session {
+func NewSession(id string, vid int, ts int) *Session {
 	s := Session{
 		id,
 		vid,
-		tid,
 		ts,
 		make(map[string]*Member),
 		false,
@@ -107,7 +102,6 @@ func NewSession(id string, vid int, tid int, ts int) *Session {
 func (s *Session) GetWireStatus() WireStatus {
 	ws := WireStatus{
 		s.VideoID,
-		s.TrackID,
 		s.Time,
 		s.Paused,
 	}
@@ -155,7 +149,6 @@ func (s *Session) ToWireSession() WireSession {
 	return WireSession{
 		s.SessionID,
 		s.VideoID,
-		s.TrackID,
 		s.Time,
 		s.Paused,
 		wms,
@@ -202,7 +195,6 @@ func (s *Session) GetNetflixURL() string {
 
 	u.Path += fmt.Sprintf("/watch/%d", s.VideoID)
 	params := url.Values{}
-	params.Add("trackId", fmt.Sprintf("%d", s.TrackID))
 	params.Add("flixySessionId", s.SessionID)
 	u.RawQuery = params.Encode()
 

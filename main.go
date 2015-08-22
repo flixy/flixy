@@ -75,19 +75,13 @@ func main() {
 				so.Emit("flixy invalid new init map", nse)
 			}
 
-			tid, ok := nse["track_id"]
-			if !ok {
-				log.Fatalf("`flixy new` from %s (%s) had no track_id", so.Id(), so.Request().RemoteAddr)
-				so.Emit("flixy invalid new init map", nse)
-			}
-
 			time, ok := nse["time"]
 			if !ok {
 				log.Fatalf("`flixy new` from %s (%s) had no time", so.Id(), so.Request().RemoteAddr)
 				so.Emit("flixy invalid new init map", nse)
 			}
 
-			s := models.NewSession(sid, vid, tid, time)
+			s := models.NewSession(sid, vid, time)
 			s.AddMember(so)
 			sessions[sid] = s
 

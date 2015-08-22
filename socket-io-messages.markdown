@@ -21,7 +21,6 @@ Plays the given session ID.
 ### `flixy new`
 #### Argument: ```{
 	"video_id": int, // the current video ID
-	"track_id": int, // the current track ID (????)
 	"time": int, // the current timestamp according to netflix
 	"nick": string // the client's preferred nickname
 }``` (object)
@@ -53,7 +52,6 @@ play` or `flixy join`
 {
 	"session_id": string,
 	"video_id": int,
-	"track_id": int,
 	"time": int,
 	"paused": bool,
 	"members": map[string]{
@@ -67,7 +65,6 @@ play` or `flixy join`
 {
 	"session_id": string,
 	"video_id": int,
-	"track_id": int,
 	"time": int,
 	"paused": bool,
 	"members": map[string]{
@@ -80,7 +77,6 @@ play` or `flixy join`
 #### Payload: ```
 {
 	"video_id": int,
-	"track_id": int,
 	"time": int,
 	"paused": bool
 }
