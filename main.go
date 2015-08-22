@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	flag "github.com/ogier/pflag"
-	"log"
 	"math/rand"
 	"net/http"
+
+	log "github.com/Sirupsen/logrus"
+	flag "github.com/ogier/pflag"
 
 	"github.com/skyhighwings/flixy/models"
 
@@ -16,12 +17,23 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/drone/routes"
 	"github.com/googollee/go-socket.io"
+	"github.com/meatballhat/negroni-logrus"
 )
 
 // opts is the internal options string.
 type options struct {
-	Port int
-	Host string
+	Port     int
+	Host     string
+	LogLevel string
+}
+
+var logLevels = map[string]log.Level{
+	"panic": log.PanicLevel,
+	"fatal": log.FatalLevel,
+	"error": log.ErrorLevel,
+	"warn":  log.WarnLevel,
+	"info":  log.InfoLevel,
+	"debug": log.DebugLevel,
 }
 
 var (
@@ -43,8 +55,16 @@ func makeNewSessionID() string {
 func main() {
 	flag.IntVarP(&opts.Port, "port", "p", 3000, "the port to listen on")
 	flag.StringVarP(&opts.Host, "host", "h", "0.0.0.0", "the host to listen on")
+	flag.StringVarP(&opts.LogLevel, "log-level", "l", "info", "the log level to use (possible: panic,fatal,error,warn,info,debug)")
 
-	log.Printf("Starting flixy!")
+	ll, ok := logLevels[opts.LogLevel]
+	if !ok {
+		log.Errorf("invalid log level %s set, falling back to default %s", opts.LogLevel, "info")
+	}
+	log.SetLevel(ll)
+	log.Debugf("setting log level to %s", opts.LogLevel)
+
+	log.Info("Starting flixy!")
 
 	server, err := socketio.NewServer(nil)
 	if err != nil {
@@ -54,10 +74,17 @@ func main() {
 	// TODO figure out what the fuck is the deal with IDs --- can they be a
 	// key in map[session_id]User or something?
 	server.On("connection", func(so socketio.Socket) {
+		sockid := so.Id()
+
 		so.On("flixy get sync", func(sid string) {
 			s, ok := sessions[sid]
 			if !ok {
-				log.Printf("`flixy get sync` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				log.WithFields(log.Fields{
+					"verb":          "flixy get sync",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+					"invalid_sid":   sid,
+				}).Warn("no video id included")
 				so.Emit("flixy invalid session id", sid)
 			}
 
@@ -65,19 +92,27 @@ func main() {
 		})
 
 		so.On("flixy new", func(nse map[string]int) {
-			log.Printf("client %s creating a new session", so.Id())
+			log.Infof("client %s creating a new session", sockid)
 
 			sid := makeNewSessionID()
 
 			vid, ok := nse["video_id"]
 			if !ok {
-				log.Printf("`flixy new` from %s (%s) had no video_id", so.Id(), so.Request().RemoteAddr)
+				log.WithFields(log.Fields{
+					"verb":          "flixy new",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+				}).Warn("no video id included")
 				so.Emit("flixy invalid new init map", nse)
 			}
 
 			time, ok := nse["time"]
 			if !ok {
-				log.Printf("`flixy new` from %s (%s) had no time", so.Id(), so.Request().RemoteAddr)
+				log.WithFields(log.Fields{
+					"verb":          "flixy new",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+				}).Warn("no time included")
 				so.Emit("flixy invalid new init map", nse)
 			}
 
@@ -86,14 +121,19 @@ func main() {
 			sessions[sid] = s
 
 			so.Emit("flixy new session", s.ToWireSession())
-			log.Printf("new session %s created", sid)
+			log.Infof("new session %s created", sid)
 		})
 
 		so.On("flixy pause", func(sid string) {
-			log.Printf("%s pausing session %s", so.Id(), sid)
+			log.Infof("%s pausing session %s", sockid, sid)
 			s, ok := sessions[sid]
 			if !ok {
-				log.Printf("`flixy pause` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				log.WithFields(log.Fields{
+					"verb":          "flixy pause",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+					"invalid_sid":   sid,
+				}).Warn("invalid session id")
 				so.Emit("flixy invalid session id", sid)
 			}
 
@@ -101,22 +141,33 @@ func main() {
 		})
 
 		so.On("flixy play", func(sid string) {
-			log.Printf("%s playing session %s", so.Id(), sid)
+			log.Infof("%s playing session %s", sockid, sid)
 			s, ok := sessions[sid]
 			if !ok {
-				log.Printf("`flixy play` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				log.WithFields(log.Fields{
+					"verb":          "flixy play",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+					"invalid_sid":   sid,
+				}).Warn("invalid session id")
 				so.Emit("flixy invalid session id", sid)
 			}
 
 			s.Play()
+			log.Debugf("%s session play being sent to %s", sockid, sid)
 		})
 
 		// sid -> session id
 		so.On("flixy join", func(sid string) {
-			log.Printf("%s joining session %s", so.Id(), sid)
+			log.Infof("%s joining session %s", sockid, sid)
 			s, ok := sessions[sid]
 			if !ok {
-				log.Printf("`flixy join` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				log.WithFields(log.Fields{
+					"verb":          "flixy join",
+					"member_sockid": sockid,
+					"member_remote": so.Request().RemoteAddr,
+					"invalid_sid":   sid,
+				}).Warn("invalid session id")
 				so.Emit("flixy invalid session id", sid)
 				return
 			}
@@ -124,31 +175,25 @@ func main() {
 			s.AddMember(so)
 		})
 
-		log.Println("on connection")
-		log.Printf("id %s connected", so.Id())
+		log.Infof("id %s connected", sockid)
 	})
 
 	server.On("disconnection", func(so socketio.Socket) {
 		sockid := so.Id()
 
-		log.Printf("%v disconnected", sockid)
-		log.Printf("deleting %v's memberships ....", sockid)
+		log.Infof("%v disconnected", sockid)
+		log.Debugf("deleting %v's memberships ....", sockid)
 		for _, session := range sessions {
 			session.RemoveMember(sockid)
 		}
 	})
 
 	server.On("error", func(so socketio.Socket, err error) {
-		log.Println("error:", err)
+		log.Error("error:", err)
 	})
 
 	mux := http.NewServeMux()
 	api := routes.New()
-
-	api.Get("/", func(w http.ResponseWriter, req *http.Request) {
-		log.Printf("%s %s\n", req.Header.Get("X-Request-ID"), req.URL.Path)
-		fmt.Fprintf(w, "Hi!")
-	})
 
 	// TODO remove this
 	api.Get("/status", func(w http.ResponseWriter, r *http.Request) {
@@ -175,7 +220,9 @@ func main() {
 	mux.Handle("/socket.io/", server)
 	mux.Handle("/", api)
 
-	n := negroni.Classic()
+	n := negroni.New()
+	n.Use(negronilogrus.NewMiddleware())
+	n.Use(negroni.NewRecovery())
 	middleware.Inject(n)
 	n.UseHandler(mux)
 	n.Run(fmt.Sprintf("%s:%d", opts.Host, opts.Port))
