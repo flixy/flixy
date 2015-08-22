@@ -22,7 +22,6 @@ Plays the given session ID.
 #### Argument: ```{
 	"video_id": int, // the current video ID
 	"time": int, // the current timestamp according to netflix
-	"nick": string // the client's preferred nickname
 }``` (object)
 
 Initializes a new session.
@@ -55,7 +54,6 @@ play` or `flixy join`
 	"time": int,
 	"paused": bool,
 	"members": map[string]{
-		"nick": string
 	}
 }
 ```
@@ -68,7 +66,6 @@ play` or `flixy join`
 	"time": int,
 	"paused": bool,
 	"members": map[string]{
-		"nick": string
 	}
 }
 ```
