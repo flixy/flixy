@@ -78,17 +78,19 @@ func main() {
 			vid, ok := nse["video_id"]
 			if !ok {
 				log.Fatalf("`flixy new` from %s (%s) had no video_id", so.Id(), so.Request().RemoteAddr)
-				so.Emit("flixy invalid session id", sid)
+				so.Emit("flixy invalid new init map", nse)
 			}
 
 			tid, ok := nse["track_id"]
 			if !ok {
 				log.Fatalf("`flixy new` from %s (%s) had no track_id", so.Id(), so.Request().RemoteAddr)
+				so.Emit("flixy invalid new init map", nse)
 			}
 
 			time, ok := nse["time"]
 			if !ok {
 				log.Fatalf("`flixy new` from %s (%s) had no time", so.Id(), so.Request().RemoteAddr)
+				so.Emit("flixy invalid new init map", nse)
 			}
 
 			s := models.NewSession(sid, vid, tid, time)
