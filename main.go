@@ -231,7 +231,7 @@ func main() {
 	mux.Handle("/", api)
 
 	n := negroni.New()
-	n.Use(negronilogrus.NewMiddleware())
+	n.Use(negronilogrus.NewCustomMiddleware(ll, &log.TextFormatter{}, "web"))
 	n.Use(negroni.NewRecovery())
 	middleware.Inject(n)
 	n.UseHandler(mux)
