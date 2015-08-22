@@ -136,8 +136,8 @@ func (s *Session) Sync() {
 
 // AddMember adds a member to the given session and syncs them to where the
 // server is.
-func (s *Session) AddMember(so socketio.Socket) {
-	m := &Member{so, s}
+func (s *Session) AddMember(so socketio.Socket, nick string) {
+	m := &Member{so, s, nick}
 	s.Members[so.Id()] = m
 	m.Sync()
 

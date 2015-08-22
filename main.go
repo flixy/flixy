@@ -140,9 +140,13 @@ func main() {
 			}
 
 			time := data.Time
+			nick := data.Nick
+			if nick == "" {
+				nick = "(no nick)"
+			}
 
 			s := models.NewSession(sid, vid, time)
-			s.AddMember(so)
+			s.AddMember(so, nick)
 			sessions[sid] = s
 
 			so.Emit("flixy new session", s.ToWireSession())
@@ -235,6 +239,10 @@ func main() {
 			}
 
 			sid := data.SessionID
+			nick := data.Nick
+			if nick == "" {
+				nick = "(no nick)"
+			}
 
 			s, ok := sessions[sid]
 			if !ok {
@@ -249,7 +257,7 @@ func main() {
 				return
 			}
 
-			s.AddMember(so)
+			s.AddMember(so, nick)
 
 			log.WithFields(log.Fields{
 				"verb":          "flixy play",

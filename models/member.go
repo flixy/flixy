@@ -8,12 +8,14 @@ import "github.com/googollee/go-socket.io"
 type Member struct {
 	Socket socketio.Socket
 	*Session
+	Nick string `json:"nick"`
 }
 
 // WireMember is the *external* representation of a member of a flixy session.
 // It has nothing in it currently, but will have a `nickname` or something like
 // it in the neat future.
 type WireMember struct {
+	Nick string `json:"nick"`
 }
 
 // Sync tells the given member the state of the session.
@@ -26,5 +28,5 @@ func (m *Member) Sync() {
 // connection.
 func (m *Member) ToWireMember() WireMember {
 	// TODO include ID, nick, etc
-	return WireMember{}
+	return WireMember{m.Nick}
 }
