@@ -11,7 +11,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	flag "github.com/ogier/pflag"
 
-	"github.com/skyhighwings/flixy/models"
+	"github.com/flixy/flixy/models"
 
 	"github.com/Xe/middleware"
 	"github.com/codegangsta/negroni"
