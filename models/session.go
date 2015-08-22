@@ -45,7 +45,7 @@ func NewSession(id string, vid int, ts int) *Session {
 		vid,
 		ts,
 		make(map[string]*Member),
-		false,
+		true,
 		tock.NewTicker(time.Millisecond),
 	}
 
