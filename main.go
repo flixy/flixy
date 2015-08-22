@@ -42,9 +42,6 @@ func main() {
 	// TODO figure out what the fuck is the deal with IDs --- can they be a
 	// key in map[session_id]User or something?
 	server.On("connection", func(so socketio.Socket) {
-		s := sessions["test"]
-		log.Printf("34 %v", s)
-
 		// se -> sync event
 		// map[string]interface{} that looks like
 		// { paused: false, ts: 128519241124, vid: 6527312, tid: 5124623 }
@@ -78,6 +75,7 @@ func main() {
 			vid, ok := nse["video_id"]
 			if !ok {
 				log.Fatalf("`flixy new` from %s (%s) had no video_id", so.Id(), so.Request().RemoteAddr)
+				so.Emit("flixy invalid session id", sid)
 			}
 
 			tid, ok := nse["track_id"]
@@ -101,6 +99,7 @@ func main() {
 			s, ok := sessions[sid]
 			if !ok {
 				log.Fatalf("`flixy pause` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				so.Emit("flixy invalid session id", sid)
 			}
 
 			s.Pause()
@@ -110,6 +109,7 @@ func main() {
 			s, ok := sessions[sid]
 			if !ok {
 				log.Fatalf("`flixy play` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				so.Emit("flixy invalid session id", sid)
 			}
 
 			s.Play()
@@ -124,10 +124,6 @@ func main() {
 			}
 
 			s.AddMember(so)
-		})
-
-		so.On("flixy test", func(thing interface{}) {
-			s.Sync()
 		})
 
 		log.Println("on connection")
