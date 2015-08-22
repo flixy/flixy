@@ -2,8 +2,16 @@
 
 ## Messages clients can send
 
+All messages that clients send *MUST* be encoded with JSON.stringify before
+being sent.
+
+### `flixy get sync`
+#### Argument: `{ "session_id": string }`
+
+Asks the server to send a sync update.
+
 ### `flixy pause`
-#### Argument: `sid` (string)
+#### Argument: `{ "session_id": string }`
 
 Pauses the time in the given session ID.
 
@@ -11,7 +19,7 @@ Pauses the time in the given session ID.
 	None specifically, but a `flixy sync` will be sent.
 
 ### `flixy play`
-#### Argument: `sid` (string)
+#### Argument: `{ "session_id": string }`
 
 Plays the given session ID.
 
@@ -19,10 +27,7 @@ Plays the given session ID.
 	None specifically, but a `flixy sync` will be sent.
 
 ### `flixy new`
-#### Argument: ```{
-	"video_id": int, // the current video ID
-	"time": int, // the current timestamp according to netflix
-}``` (object)
+#### Argument: ` { "video_id": int, "time": int }`
 
 Initializes a new session.
 
@@ -30,7 +35,7 @@ Initializes a new session.
 	A `flixy new session` response.
 
 ### `flixy join`
-#### Argument: `sid` (string)
+#### Argument: `{ "session_id": string, "nick": string }`
 
 Joins the member to the given session.
 
@@ -54,6 +59,7 @@ play` or `flixy join`
 	"time": int,
 	"paused": bool,
 	"members": map[string]{
+		"nick": string
 	}
 }
 ```
@@ -66,6 +72,7 @@ play` or `flixy join`
 	"time": int,
 	"paused": bool,
 	"members": map[string]{
+		"nick": string
 	}
 }
 ```
@@ -73,8 +80,12 @@ play` or `flixy join`
 ### `flixy sync`
 #### Payload: ```
 {
+	"session_id": string,
 	"video_id": int,
 	"time": int,
-	"paused": bool
+	"paused": bool,
+	"members": map[string]{
+		"nick": string
+	}
 }
 ```
