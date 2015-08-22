@@ -52,26 +52,6 @@ func main() {
 			so.Emit("flixy sync", s.GetWireStatus())
 		})
 
-		/*
-			`flixy new` creates a new session, and accepts a map of the form:
-			{
-				video_id: 6135412,
-				track_id: 51251265,
-				time: 12423552346
-			}
-
-			upon registration it will emit an event `flixy new session` to the client, which will be a map:
-			{
-				session_id: "1254-5231-5432-4324",
-				video_id: 1523543,
-				track_id: 236523,
-				time: 523623662,
-				members: {}
-			}
-
-			TODO can this `members` be reasonably removed?
-
-		*/
 		so.On("flixy new", func(nse map[string]int) {
 			sid := makeNewSessionID()
 
