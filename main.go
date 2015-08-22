@@ -54,8 +54,9 @@ func makeNewSessionID() string {
 // main is the entry point to the flixy server.
 func main() {
 	flag.IntVarP(&opts.Port, "port", "p", 3000, "the port to listen on")
-	flag.StringVarP(&opts.Host, "host", "h", "0.0.0.0", "the host to listen on")
+	flag.StringVarP(&opts.Host, "host", "H", "0.0.0.0", "the host to listen on")
 	flag.StringVarP(&opts.LogLevel, "log-level", "l", "info", "the log level to use (possible: panic,fatal,error,warn,info,debug)")
+	flag.Parse()
 
 	ll, ok := logLevels[opts.LogLevel]
 	if !ok {
