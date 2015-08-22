@@ -88,7 +88,7 @@ func (s *Session) Pause() {
 	s.Sync()
 }
 
-// ToWireSession returns a `WireSession` from a given `Session`, which is a
+// GetWireSession returns a `WireSession` from a given `Session`, which is a
 // sanitized version of a session suitable for sending over a socket.io
 // connection.
 func (s *Session) GetWireSession() WireSession {
