@@ -39,7 +39,8 @@ var logLevels = map[string]log.Level{
 }
 
 var (
-	opts = options{}
+	opts     = options{}
+	loglevel log.Level
 )
 
 // sessions is a map of the session identifier to each Flixy session, generated
@@ -57,10 +58,9 @@ func makeNewSessionID() string {
 	return fmt.Sprintf("%4d-%4d-%4d-%4d", rand.Intn(9999), rand.Intn(9999), rand.Intn(9999), rand.Intn(9999))
 }
 
-// dealWithUserSettings is the internal function to handle the various
-// conversions and such that go with dealing with the user-defined settings of
-// flixy.`
-func dealWithUserSettings() {
+// init is a special function called before main(). used to set up such things
+// as loglevels and such.
+func init() {
 	defaultPort, err := strconv.Atoi(os.Getenv("FLIXY_PORT"))
 	if err != nil {
 		defaultPort = 3000
@@ -80,19 +80,18 @@ func dealWithUserSettings() {
 	flag.StringVarP(&opts.LogLevel, "log-level", "l", defaultLogLevel, "the log level to use (possible: panic,fatal,error,warn,info,debug)")
 	flag.Parse()
 
+	loglevel, ok := logLevels[opts.LogLevel]
+	if !ok {
+		log.Errorf("invalid log level %s set, falling back to default %s", opts.LogLevel, "info")
+		loglevel = log.InfoLevel
+	}
+	log.SetLevel(loglevel)
+	log.Debugf("setting log level to %s", opts.LogLevel)
+
 }
 
 // main is the entry point to the flixy server.
 func main() {
-	dealWithUserSettings()
-
-	ll, ok := logLevels[opts.LogLevel]
-	if !ok {
-		log.Errorf("invalid log level %s set, falling back to default %s", opts.LogLevel, "info")
-	}
-	log.SetLevel(ll)
-	log.Debugf("setting log level to %s", opts.LogLevel)
-
 	log.Info("Starting flixy!")
 
 	server, err := socketio.NewServer(nil)
@@ -357,7 +356,7 @@ func main() {
 	mux.Handle("/", api)
 
 	n := negroni.New()
-	n.Use(negronilogrus.NewCustomMiddleware(ll, &log.TextFormatter{}, "web"))
+	n.Use(negronilogrus.NewCustomMiddleware(loglevel, &log.TextFormatter{}, "web"))
 	n.Use(negroni.NewRecovery())
 	middleware.Inject(n)
 	n.UseHandler(mux)
