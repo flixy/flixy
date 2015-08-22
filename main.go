@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	flag "github.com/ogier/pflag"
 	"log"
 	"math/rand"
 	"net/http"
@@ -15,6 +16,16 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/drone/routes"
 	"github.com/googollee/go-socket.io"
+)
+
+// opts is the internal options string.
+type options struct {
+	Port int
+	Host string
+}
+
+var (
+	opts = options{}
 )
 
 // sessions is a map of the session identifier to each Flixy session, generated
@@ -30,6 +41,8 @@ func makeNewSessionID() string {
 
 // main is the entry point to the flixy server.
 func main() {
+	flag.IntVarP(&opts.Port, "port", "p", 3000, "the port to listen on")
+	flag.StringVarP(&opts.Host, "host", "h", "0.0.0.0", "the host to listen on")
 
 	log.Printf("Starting flixy!")
 
@@ -170,5 +183,5 @@ func main() {
 	n := negroni.Classic()
 	middleware.Inject(n)
 	n.UseHandler(mux)
-	n.Run(":3000")
+	n.Run(fmt.Sprintf("%s:%d", opts.Host, opts.Port))
 }
