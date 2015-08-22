@@ -42,11 +42,14 @@ func main() {
 	// TODO figure out what the fuck is the deal with IDs --- can they be a
 	// key in map[session_id]User or something?
 	server.On("connection", func(so socketio.Socket) {
-		// se -> sync event
-		// map[string]interface{} that looks like
-		// { paused: false, ts: 128519241124, vid: 6527312, tid: 5124623 }
-		so.On("flixy sync", func(se map[string]interface{}) {
-			log.Printf("%v", se)
+		so.On("flixy get sync", func(sid string) {
+			s, ok := sessions[sid]
+			if !ok {
+				log.Fatalf("`flixy get sync` from %s (%s) had an invalid session_id", so.Id(), so.Request().RemoteAddr)
+				so.Emit("flixy invalid session id", sid)
+			}
+
+			so.Emit("flixy sync", s.GetWireStatus())
 		})
 
 		/*
