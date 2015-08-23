@@ -80,11 +80,13 @@ func init() {
 	flag.StringVarP(&opts.LogLevel, "log-level", "l", defaultLogLevel, "the log level to use (possible: panic,fatal,error,warn,info,debug)")
 	flag.Parse()
 
-	loglevel, ok := logLevels[opts.LogLevel]
+	ll, ok := logLevels[opts.LogLevel]
 	if !ok {
 		log.Errorf("invalid log level %s set, falling back to default %s", opts.LogLevel, "info")
-		loglevel = log.InfoLevel
+		ll = log.InfoLevel
 	}
+
+	loglevel = ll
 	log.SetLevel(loglevel)
 	log.Debugf("setting log level to %s", opts.LogLevel)
 
@@ -333,7 +335,12 @@ func main() {
 		// print status here
 		// this is just for debugging for now, we need more in-depth stuff soon
 		enc := json.NewEncoder(w)
-		enc.Encode(sessions)
+		wms := make(map[string]models.WireSession)
+
+		for k, v := range sessions {
+			wms[k] = v.GetWireSession()
+		}
+		enc.Encode(wms)
 	})
 
 	// `/sessions/:sid` will 302 the user to the proper Netflix URL if it's
