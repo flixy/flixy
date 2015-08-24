@@ -12,9 +12,9 @@ import (
 // Session is the *internal* representation of a flixy session, which is a
 // collection of *Members*, along with:
 //   - A single Session ID, which is the name by which this is referred (this is probably always going to be the key in the `sessions` map in `main.go`
-//   - a single Video ID (a session can only be watching one thing at a time)
+//   - A single Video ID (a session can only be watching one thing at a time)
 //   - A single Time, which is a JS time in milliseconds (recorded as an `int`, but is that enough for a JS timestamp (which is milliseconds)?) Possible TODO is to make this a Time in the internal rep.
-//   - a stop channel, which listens for messages and stops the ticker. For internal use only.
+//   - A bool indicating whether or not the session is currently paused
 type Session struct {
 	SessionID string             `json:"session_id"`
 	VideoID   int                `json:"video_id"`
@@ -27,8 +27,8 @@ type Session struct {
 // WireSession is the *external* representation of a flixy session. It has no
 // references to anything that has an unexported field, as that currently
 // (2015-08-20) causes reflection errors.
-// It is comprised of the session ID, the video ID, the time, and
-// the members.
+// It is comprised of the session ID, the video ID, the time, whether or not
+// the session is paused, and the members.
 type WireSession struct {
 	SessionID string                `json:"session_id"`
 	VideoID   int                   `json:"video_id"`
@@ -38,8 +38,9 @@ type WireSession struct {
 }
 
 // NewSession creates and return a new `Session` with the given arguments,
-// starting the ticker for it in the process.
+// starting paused.
 func NewSession(id string, vid int, ts int) *Session {
+	// TODO add an option to start unpaused?
 	s := Session{
 		id,
 		vid,
