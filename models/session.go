@@ -49,6 +49,10 @@ func NewSession(id string, vid int, ts int) *Session {
 		tock.NewTicker(time.Millisecond),
 	}
 
+	// TODO run a select{} on this for a quit channel for when we delete
+	// the session, so we don't continue accumulating goroutines for no
+	// reason over the life of the application
+
 	go func() {
 		for {
 			<-s.ticker.C
