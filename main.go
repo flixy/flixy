@@ -55,7 +55,7 @@ var members = make(map[string]*models.Member)
 // form "%4d-%4d-%4d-%4d" but this is subject to change and is an
 // implementation detail.
 func makeNewSessionID() string {
-	return fmt.Sprintf("%4d-%4d-%4d-%4d", rand.Intn(9999), rand.Intn(9999), rand.Intn(9999), rand.Intn(9999))
+	return fmt.Sprintf("%04d-%04d-%04d-%04d", rand.Intn(9999), rand.Intn(9999), rand.Intn(9999), rand.Intn(9999))
 }
 
 // init is a special function called before main(). used to set up such things
