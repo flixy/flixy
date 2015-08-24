@@ -1,7 +1,7 @@
 flixy.xyz
 ========
 
-[![GoDoc](https://godoc.org/github.com/skyhighwings/flixy?status.svg)](https://godoc.org/github.com/skyhighwings/flixy)
+[![GoDoc](https://godoc.org/github.com/skyhighwings/flixy?status.svg)](https://godoc.org/github.com/skyhighwings/flixy) [![Build Status](https://travis-ci.org/flixy/flixy.svg?branch=master)](https://travis-ci.org/flixy/flixy)
 
 watch netflix, collaboratively
 
