@@ -49,6 +49,7 @@ func NewSession(id string, vid int, ts int) *Session {
 		true,
 		tock.NewTicker(time.Millisecond),
 	}
+	s.ticker.Stop()
 
 	// TODO run a select{} on this for a quit channel for when we delete
 	// the session, so we don't continue accumulating goroutines for no
