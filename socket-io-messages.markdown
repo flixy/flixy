@@ -23,6 +23,11 @@ Pauses the time in the given session ID.
 
 Plays the given session ID.
 
+### `flixy seek`
+#### Argument: `{ "session_id": string, "time": int }`
+
+Sets the given session to the given timestamp
+
 #### Response:
 	None specifically, but a `flixy sync` will be sent.
 

@@ -226,3 +226,45 @@ func JoinHandler(so socketio.Socket) func(string) {
 		}).Debug("joining a session")
 	}
 }
+
+// SeekHandler returns the handler for `flixy seek`.
+func SeekHandler(so socketio.Socket) func(string) {
+	sockid := so.Id()
+	sockip := so.Request().RemoteAddr
+
+	return func(jsonmsg string) {
+		var data models.SeekMessage
+
+		if err := json.Unmarshal([]byte(jsonmsg), &data); err != nil {
+			log.WithFields(log.Fields{
+				"verb":          "flixy seek",
+				"member_sockid": sockid,
+				"member_remote": sockip,
+			}).Error(err)
+			return
+		}
+
+		sid := data.SessionID
+		ts := data.Time
+
+		s, ok := sessions[sid]
+		if !ok {
+			log.WithFields(log.Fields{
+				"verb":          "flixy seek",
+				"member_sockid": sockid,
+				"member_remote": sockip,
+				"invalid_sid":   sid,
+			}).Warn("invalid session id")
+			so.Emit("flixy invalid session id", sid)
+			return
+		}
+
+		log.WithFields(log.Fields{
+			"verb":          "flixy seek",
+			"member_sockid": sockid,
+			"member_remote": sockip,
+			"session":       sid,
+		}).Debug("setting time")
+		s.SetTime(ts)
+	}
+}

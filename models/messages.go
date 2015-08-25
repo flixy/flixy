@@ -35,3 +35,10 @@ type JoinMessage struct {
 	SessionID string `json:"session_id"`
 	Nick      string `json:"nick"`
 }
+
+// SeekMessage is the struct to which `flixy seek` messages are unmarshaled
+// into.
+type SeekMessage struct {
+	SessionID string `json:"session_id"`
+	Time      int    `json:"time"`
+}

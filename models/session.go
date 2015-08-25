@@ -64,6 +64,11 @@ func NewSession(id string, vid int, ts int) *Session {
 	return &s
 }
 
+func (s *Session) SetTime(ts int) {
+	s.Time = ts
+	s.Sync()
+}
+
 // SendToAll emits a given eventName on all member sockets, with the given
 // message. Please don't pass anything that has an unexported struct key
 // anywhere in it at all to this. go-socket.io will choke on it.
