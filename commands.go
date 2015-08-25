@@ -92,6 +92,7 @@ func NewHandler(so socketio.Socket) func(string) {
 		sessions[sid] = s
 
 		so.Emit("flixy new session", s.GetWireSession())
+		// TODO make this the new style logging :-)
 		log.Infof("new session %s created", sid)
 	}
 }
