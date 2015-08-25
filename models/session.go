@@ -65,6 +65,7 @@ func NewSession(id string, vid int, ts int) *Session {
 	return &s
 }
 
+// SetTime will set the time of the session to the given int timestamp.
 func (s *Session) SetTime(ts int) {
 	s.Time = ts
 	s.Sync()
