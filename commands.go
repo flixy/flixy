@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/flixy/flixy/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"github.com/flixy/flixy/Godeps/_workspace/src/github.com/googollee/go-socket.io"
 	"github.com/flixy/flixy/models"
-	"github.com/googollee/go-socket.io"
 )
 
 // SyncHandler returns the handler for `flixy get sync`.

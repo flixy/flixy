@@ -1,6 +1,6 @@
 package models
 
-import "github.com/googollee/go-socket.io"
+import "github.com/flixy/flixy/Godeps/_workspace/src/github.com/googollee/go-socket.io"
 
 // Member is the *internal* representation of a member of a flixy session. It
 // currently has only a socket, but will have a `nickname` or something like it

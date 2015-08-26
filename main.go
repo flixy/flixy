@@ -10,16 +10,16 @@ import (
 	"math/rand"
 	"net/http"
 
-	log "github.com/Sirupsen/logrus"
-	flag "github.com/ogier/pflag"
+	log "github.com/flixy/flixy/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	flag "github.com/flixy/flixy/Godeps/_workspace/src/github.com/ogier/pflag"
 
 	"github.com/flixy/flixy/models"
 
-	"github.com/Xe/middleware"
-	"github.com/codegangsta/negroni"
-	"github.com/drone/routes"
-	"github.com/googollee/go-socket.io"
-	"github.com/meatballhat/negroni-logrus"
+	"github.com/flixy/flixy/Godeps/_workspace/src/github.com/Xe/middleware"
+	"github.com/flixy/flixy/Godeps/_workspace/src/github.com/codegangsta/negroni"
+	"github.com/flixy/flixy/Godeps/_workspace/src/github.com/drone/routes"
+	"github.com/flixy/flixy/Godeps/_workspace/src/github.com/googollee/go-socket.io"
+	"github.com/flixy/flixy/Godeps/_workspace/src/github.com/meatballhat/negroni-logrus"
 )
 
 // opts is the internal options string.

@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/e-dard/tock"
-	"github.com/googollee/go-socket.io"
+	"github.com/flixy/flixy/Godeps/_workspace/src/github.com/e-dard/tock"
+	"github.com/flixy/flixy/Godeps/_workspace/src/github.com/googollee/go-socket.io"
 )
 
 // Session is the *internal* representation of a flixy session, which is a

@@ -1,0 +1,53 @@
+{
+	"ImportPath": "github.com/flixy/flixy",
+	"GoVersion": "go1.4.2",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.6-11-g44512f0",
+			"Rev": "44512f0d08f7f81a75f5b04a2cb6d81ed25431ca"
+		},
+		{
+			"ImportPath": "github.com/Xe/middleware",
+			"Rev": "7d23200fbed9e7f3be4ac76b4f7f6bd19cc4aba0"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/negroni",
+			"Comment": "v0.1-70-gc7477ad",
+			"Rev": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b"
+		},
+		{
+			"ImportPath": "github.com/drone/routes",
+			"Rev": "853bef2b231162bb7b09355720416d3af1510d88"
+		},
+		{
+			"ImportPath": "github.com/e-dard/tock",
+			"Rev": "cf4d5a3c8db6b7c039694f056a4aaeda729b978e"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-engine.io",
+			"Rev": "5525e3de461352f4c88d28287161ca2272c024ac"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-socket.io",
+			"Comment": "0.9.x-37-g76e104d",
+			"Rev": "76e104d69892d45b272728110e61d4981408787a"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "b6ab76f1fe9803ee1d59e7e5b2a797c1fe897ce5"
+		},
+		{
+			"ImportPath": "github.com/meatballhat/negroni-logrus",
+			"Rev": "359c642dcfcbcf0e06085717100f685a6b884dbb"
+		},
+		{
+			"ImportPath": "github.com/ogier/pflag",
+			"Comment": "v0.0.1-4-g6f7159c",
+			"Rev": "6f7159c3154e7cd4ab30f6cc9c58fa3fd0f22325"
+		}
+	]
+}
