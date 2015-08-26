@@ -63,7 +63,7 @@ func makeNewSessionID() string {
 func init() {
 	defaultPort, err := strconv.Atoi(os.Getenv("FLIXY_PORT"))
 	if err != nil {
-		defaultPort = 3000
+		defaultPort = 80
 	}
 	defaultHost := os.Getenv("FLIXY_HOST")
 	if defaultHost == "" {
