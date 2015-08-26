@@ -58,6 +58,14 @@ func makeNewSessionID() string {
 	return fmt.Sprintf("%04d-%04d-%04d-%04d", rand.Intn(9999), rand.Intn(9999), rand.Intn(9999), rand.Intn(9999))
 }
 
+func getRemoteIP(so socketio.Socket) (sockip string) {
+	sockip = so.Request().RemoteAddr
+	if len(so.Request().Header.Get("X-Forwarded-For")) > 0 {
+		sockip = so.Request().Header.Get("X-Forwarded-For")
+	}
+	return
+}
+
 // init is a special function called before main(). used to set up such things
 // as loglevels and such.
 func init() {
@@ -105,7 +113,7 @@ func main() {
 	// key in map[session_id]User or something?
 	server.On("connection", func(so socketio.Socket) {
 		sockid := so.Id()
-		sockip := so.Request().RemoteAddr
+		sockip := getRemoteIP(so)
 
 		so.On("flixy get sync", SyncHandler(so))
 		so.On("flixy new", NewHandler(so))
@@ -122,7 +130,7 @@ func main() {
 
 	server.On("disconnection", func(so socketio.Socket) {
 		sockid := so.Id()
-		sockip := so.Request().RemoteAddr
+		sockip := getRemoteIP(so)
 
 		m, ok := members[sockid]
 		if !ok {

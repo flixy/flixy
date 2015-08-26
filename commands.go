@@ -11,7 +11,7 @@ import (
 // SyncHandler returns the handler for `flixy get sync`.
 func SyncHandler(so socketio.Socket) func(string) {
 	sockid := so.Id()
-	sockip := so.Request().RemoteAddr
+	sockip := getRemoteIP(so)
 
 	return func(jsonmsg string) {
 		var data models.GetSyncMessage
@@ -51,7 +51,7 @@ func SyncHandler(so socketio.Socket) func(string) {
 // NewHandler returns the handler for `flixy new`.
 func NewHandler(so socketio.Socket) func(string) {
 	sockid := so.Id()
-	sockip := so.Request().RemoteAddr
+	sockip := getRemoteIP(so)
 
 	return func(jsonmsg string) {
 		var data models.NewMessage
@@ -100,7 +100,7 @@ func NewHandler(so socketio.Socket) func(string) {
 // PauseHandler returns the handler for `flixy pause`.
 func PauseHandler(so socketio.Socket) func(string) {
 	sockid := so.Id()
-	sockip := so.Request().RemoteAddr
+	sockip := getRemoteIP(so)
 
 	return func(jsonmsg string) {
 		var data models.PauseMessage
@@ -142,7 +142,7 @@ func PauseHandler(so socketio.Socket) func(string) {
 // PlayHandler returns the handler for `flixy play`.
 func PlayHandler(so socketio.Socket) func(string) {
 	sockid := so.Id()
-	sockip := so.Request().RemoteAddr
+	sockip := getRemoteIP(so)
 
 	return func(jsonmsg string) {
 		var data models.PlayMessage
@@ -184,7 +184,7 @@ func PlayHandler(so socketio.Socket) func(string) {
 // JoinHandler returns the handler for `flixy join`.
 func JoinHandler(so socketio.Socket) func(string) {
 	sockid := so.Id()
-	sockip := so.Request().RemoteAddr
+	sockip := getRemoteIP(so)
 
 	return func(jsonmsg string) {
 		var data models.JoinMessage
@@ -231,7 +231,7 @@ func JoinHandler(so socketio.Socket) func(string) {
 // SeekHandler returns the handler for `flixy seek`.
 func SeekHandler(so socketio.Socket) func(string) {
 	sockid := so.Id()
-	sockip := so.Request().RemoteAddr
+	sockip := getRemoteIP(so)
 
 	return func(jsonmsg string) {
 		var data models.SeekMessage
