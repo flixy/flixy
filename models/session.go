@@ -140,9 +140,12 @@ func (s *Session) AddMember(so socketio.Socket, nick string) *Member {
 	return m
 }
 
-// RemoveMember removes a member from the given session.
-func (s *Session) RemoveMember(id string) {
+// RemoveMember removes a member from the given session and returns the number
+// of members left in it.
+func (s *Session) RemoveMember(id string) int {
 	delete(s.Members, id)
+
+	return len(s.Members)
 }
 
 // GetNetflixURL returns the Netflix URL to which a user should be redirected

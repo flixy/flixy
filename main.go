@@ -152,7 +152,15 @@ func main() {
 		delete(members, sockid)
 
 		s := m.Session
-		s.RemoveMember(sockid)
+
+		// TODO this could be a lot prettier. I wish it could go in the
+		// `RemoveMember` func itself, but I can't actually think of
+		// how to remove a session from within its own context.
+		numLeft := s.RemoveMember(sockid)
+		if numLeft == 0 {
+			sid := s.SessionID
+			delete(sessions, sid)
+		}
 	})
 
 	// TODO this should probably go to its own handler, too.
