@@ -64,7 +64,11 @@ func NewHandler(so socketio.Socket) func(string) {
 			}).Error(err)
 		}
 
-		log.Infof("client %s creating a new session", sockid)
+		log.WithFields(log.Fields{
+			"verb":          "flixy new",
+			"member_sockid": sockid,
+			"member_remote": sockip,
+		}).Debugf("client beginning new session creation", sockid)
 
 		sid := makeNewSessionID()
 
@@ -93,7 +97,11 @@ func NewHandler(so socketio.Socket) func(string) {
 
 		so.Emit("flixy new session", s.GetWireSession())
 		// TODO make this the new style logging :-)
-		log.Infof("new session %s created", sid)
+		log.WithFields(log.Fields{
+			"verb":          "flixy new",
+			"member_sockid": sockid,
+			"member_remote": sockip,
+		}).Info("new session created")
 	}
 }
 
@@ -158,7 +166,13 @@ func PlayHandler(so socketio.Socket) func(string) {
 
 		sid := data.SessionID
 
-		log.Infof("%s playing session %s", sockid, sid)
+		log.WithFields(log.Fields{
+			"verb":          "flixy play",
+			"member_sockid": sockid,
+			"member_remote": sockip,
+			"session_id":    sid,
+		}).Debug("user beginning session play")
+
 		s, ok := sessions[sid]
 		if !ok {
 			log.WithFields(log.Fields{
