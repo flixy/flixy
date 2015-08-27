@@ -157,6 +157,8 @@ func main() {
 		// `RemoveMember` func itself, but I can't actually think of
 		// how to remove a session from within its own context.
 		numLeft := s.RemoveMember(sockid)
+
+		// NOTE what happens if a user connects to the session here?
 		if numLeft == 0 {
 			sid := s.SessionID
 			delete(sessions, sid)
