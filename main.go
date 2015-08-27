@@ -139,6 +139,11 @@ func main() {
 				"member_sockid": sockid,
 				"member_remote": sockip,
 			}).Warn("member never in a session disconnected")
+
+			// If a socket has never been a member, then it has no
+			// sessions to be removed from, and thus we have
+			// nothing further to do.
+			return
 		}
 
 		log.Infof("%v disconnected", sockid)
