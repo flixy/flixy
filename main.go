@@ -109,8 +109,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// TODO figure out what the fuck is the deal with IDs --- can they be a
-	// key in map[session_id]User or something?
+	// TODO can/should this be moved to its own function? it might make the
+	// architecture of the various other handlers simpler, if implemented
+	// in the right way.
 	server.On("connection", func(so socketio.Socket) {
 		sockid := so.Id()
 		sockip := getRemoteIP(so)
@@ -128,6 +129,7 @@ func main() {
 		}).Info("connected")
 	})
 
+	// TODO move this to its own handler (we're all grown up now!!!!)
 	server.On("disconnection", func(so socketio.Socket) {
 		sockid := so.Id()
 		sockip := getRemoteIP(so)
@@ -153,6 +155,7 @@ func main() {
 		s.RemoveMember(sockid)
 	})
 
+	// TODO this should probably go to its own handler, too.
 	server.On("error", func(so socketio.Socket, err error) {
 		// TODO how can this even happen?
 		log.Error("error:", err)
