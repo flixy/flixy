@@ -234,11 +234,50 @@ func JoinHandler(so socketio.Socket) func(string) {
 		s.AddMember(so, nick)
 
 		log.WithFields(log.Fields{
-			"verb":          "flixy play",
+			"verb":          "flixy join",
 			"member_sockid": sockid,
 			"member_remote": sockip,
 			"session_id":    sid,
 		}).Debug("joining a session")
+	}
+}
+
+// LeaveHandler returns the handler for `flixy leave`.
+func LeaveHandler(so socketio.Socket) func(string) {
+	sockid := so.Id()
+	sockip := getRemoteIP(so)
+
+	return func(jsonmsg string) {
+		var data models.LeaveMessage
+
+		if err := json.Unmarshal([]byte(jsonmsg), &data); err != nil {
+			log.WithFields(log.Fields{
+				"verb":          "flixy leave",
+				"member_sockid": sockid,
+				"member_remote": sockip,
+			}).Error(err)
+			return
+		}
+
+		member, ok := members[sockid]
+		if !ok {
+			log.WithFields(log.Fields{
+				"verb":          "flixy leave",
+				"member_sockid": sockid,
+				"member_remote": sockip,
+			}).Warn("member does not exist")
+
+			so.Emit("flixy member does not exist")
+			return
+		}
+
+		member.LeaveSession()
+
+		log.WithFields(log.Fields{
+			"verb":          "flixy leave",
+			"member_sockid": sockid,
+			"member_remote": sockip,
+		}).Debug("leaving a session")
 	}
 }
 

@@ -42,3 +42,8 @@ type SeekMessage struct {
 	SessionID string `json:"session_id"`
 	Time      int    `json:"time"`
 }
+
+// LeaveMessage is the struct to which `flixy leave` messages are unmarshaled
+// into.
+type LeaveMessage struct {
+}

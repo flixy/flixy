@@ -121,6 +121,7 @@ func main() {
 		so.On("flixy pause", PauseHandler(so))
 		so.On("flixy play", PlayHandler(so))
 		so.On("flixy join", JoinHandler(so))
+		so.On("flixy leave", LeaveHandler(so))
 		so.On("flixy seek", SeekHandler(so))
 
 		log.WithFields(log.Fields{
