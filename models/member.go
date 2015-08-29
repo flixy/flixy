@@ -34,5 +34,7 @@ func (m *Member) ToWireMember() WireMember {
 // LeaveSession tells the member's session to remove the member's socket ID,
 // thus removing the member from the session and any further sync, etc updates.
 func (m *Member) LeaveSession() {
-	m.Session.RemoveMember(m.Socket.Id())
+	if m.Session != nil {
+		m.Session.RemoveMember(m.Socket.Id())
+	}
 }
