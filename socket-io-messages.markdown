@@ -47,12 +47,6 @@ Joins the member to the given session.
 #### Response:
 	None specifically, however the user will be immediately synced with a `flixy sync` upon join.
 
-### `flixy leave`
-#### Argument: `{}`
-
-Makes the member leave their current session. No further messages should be
-sent.
-
 ## Messages the server can send
 
 ### `flixy invalid new init map`
